@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>crowdstake.fun — Launch a Pool</title>
+<style>
+  :root {
+    --paper: #f6f3eb;
+    --paper-2: #efe9db;
+    --ink: #1f1b16;
+    --ink-soft: #6b6357;
+    --line: #ddd4c2;
+    --crust: #b8622a;      /* baked orange */
+    --crust-2: #e08a3c;
+    --loaf: #7b8a3f;       /* olive */
+    --pop: #2f5d50;        /* deep green */
+    --gold: #d9a441;
+    --shadow: 0 20px 60px -24px rgba(46,32,16,.45);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); }
+  body {
+    font-family: ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(1200px 600px at 85% -10%, rgba(224,138,60,.16), transparent 60%),
+      radial-gradient(900px 500px at -5% 110%, rgba(47,93,80,.12), transparent 55%);
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 22px 24px 64px; }
+
+  /* nav */
+  nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; font-size: 19px; }
+  .logo {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: linear-gradient(150deg, var(--crust-2), var(--crust));
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.15), 0 4px 12px -4px rgba(184,98,42,.6);
+    display: grid; place-items: center; color: #fff; font-size: 15px;
+  }
+  .brand small { color: var(--ink-soft); font-weight: 600; }
+  .nav-pill {
+    font-size: 13px; font-weight: 700; color: var(--pop);
+    border: 1px solid var(--line); background: rgba(255,255,255,.5);
+    padding: 8px 14px; border-radius: 999px;
+  }
+
+  /* hero grid */
+  .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: center; margin-top: 44px; }
+  @media (max-width: 860px) { .hero { grid-template-columns: 1fr; gap: 30px; } }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--crust); background: rgba(224,138,60,.12);
+    border: 1px solid rgba(224,138,60,.3); padding: 6px 12px; border-radius: 999px;
+  }
+  h1 {
+    font-size: clamp(38px, 6vw, 62px); line-height: .98; letter-spacing: -.03em;
+    margin: 18px 0 0; font-weight: 850;
+  }
+  h1 .u { color: var(--crust); position: relative; white-space: nowrap; }
+  h1 .u::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 4px; height: 10px;
+    background: rgba(217,164,65,.4); border-radius: 4px; z-index: -1;
+  }
+  .sub { font-size: 17px; line-height: 1.5; color: var(--ink-soft); margin: 18px 0 0; max-width: 460px; }
+  .trust { display: flex; gap: 22px; margin-top: 26px; flex-wrap: wrap; }
+  .trust b { display: block; font-size: 22px; letter-spacing: -.02em; }
+  .trust span { font-size: 12px; color: var(--ink-soft); font-weight: 600; }
+
+  /* card = the interaction */
+  .card {
+    background: linear-gradient(180deg, #fffdf8, #fbf7ee);
+    border: 1px solid var(--line); border-radius: 22px; padding: 24px;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 5px;
+    background: linear-gradient(90deg, var(--crust), var(--gold), var(--loaf));
+  }
+  .card h2 { margin: 6px 0 2px; font-size: 18px; letter-spacing: -.01em; }
+  .card p.hint { margin: 0 0 16px; font-size: 13px; color: var(--ink-soft); }
+
+  label { display: block; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); margin: 14px 0 7px; }
+  .field {
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid var(--line); background: #fff; border-radius: 12px; padding: 11px 13px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field:focus-within { border-color: var(--crust-2); box-shadow: 0 0 0 4px rgba(224,138,60,.14); }
+  .field span.pre { color: var(--ink-soft); font-weight: 700; }
+  input[type=text], input[type=number] {
+    border: 0; outline: 0; background: transparent; font-size: 15px; font-weight: 600; color: var(--ink);
+    width: 100%; font-family: inherit;
+  }
+
+  .split { margin-top: 18px; }
+  .split-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .split-top b { font-size: 15px; }
+  .split-top em { font-style: normal; font-size: 13px; color: var(--crust); font-weight: 800; }
+  input[type=range] { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 999px; margin: 12px 0 6px;
+    background: linear-gradient(90deg, var(--loaf) var(--pct,60%), var(--paper-2) var(--pct,60%)); outline: 0; }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--crust); box-shadow: 0 3px 8px -2px rgba(0,0,0,.35); cursor: grab;
+  }
+  .split-legend { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-soft); font-weight: 600; }
+
+  .cta {
+    margin-top: 20px; width: 100%; border: 0; cursor: pointer;
+    font-family: inherit; font-size: 16px; font-weight: 800; letter-spacing: -.01em; color: #fff;
+    background: linear-gradient(150deg, var(--crust-2), var(--crust)); padding: 15px; border-radius: 14px;
+    box-shadow: 0 12px 26px -12px rgba(184,98,42,.9); transition: transform .12s, filter .12s;
+  }
+  .cta:hover { transform: translateY(-1px); filter: brightness(1.04); }
+  .cta:active { transform: translateY(0); }
+
+  /* success state */
+  .done { display: none; text-align: center; padding: 10px 4px 6px; }
+  .done.show { display: block; animation: pop .4s ease; }
+  @keyframes pop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+  .done .ring { width: 62px; height: 62px; margin: 4px auto 12px; border-radius: 50%;
+    background: rgba(47,93,80,.12); display: grid; place-items: center; color: var(--pop); font-size: 30px; }
+  .done h2 { font-size: 20px; margin: 0 0 4px; }
+  .done p { color: var(--ink-soft); font-size: 14px; margin: 0 0 16px; }
+  .link {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    border: 1px dashed var(--line); background: var(--paper); border-radius: 12px;
+    padding: 11px 13px; font-size: 13px; font-weight: 700; color: var(--pop); word-break: break-all;
+  }
+  .link button { border: 0; background: var(--pop); color: #fff; font-weight: 700; font-size: 12px;
+    padding: 7px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+  .again { margin-top: 12px; background: none; border: 0; color: var(--ink-soft); font-weight: 700; cursor: pointer; font-size: 13px; font-family: inherit; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <div class="brand">
+      <span class="logo">🍞</span>
+      crowdstake<small>.fun</small>
+    </div>
+    <span class="nav-pill">Gnosis Chain · live</span>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <span class="eyebrow">◆ New — Pool Launcher</span>
+      <h1>Turn a group chat into a <span class="u">yield engine</span> in 30 seconds.</h1>
+      <p class="sub">Spin up a shared funding pool, park it in DeFi, and stream the interest to whatever your crew is chasing — no treasurer, no spreadsheet, no rug.</p>
+      <div class="trust">
+        <div><b>$0</b><span>to launch a pool</span></div>
+        <div><b>4.8%</b><span>avg pool APY</span></div>
+        <div><b>1 link</b><span>to invite your group</span></div>
+      </div>
+    </div>
+
+    <!-- KEY INTERACTION -->
+    <div class="card">
+      <div id="form">
+        <h2>Launch a pool</h2>
+        <p class="hint">Name it, set a goal, and decide how the yield splits.</p>
+
+        <label for="name">Pool name</label>
+        <div class="field"><span class="pre">🎯</span><input id="name" type="text" placeholder="Warsaw Skatepark Fund" value="Warsaw Skatepark Fund" /></div>
+
+        <label for="goal">Funding goal</label>
+        <div class="field"><span class="pre">$</span><input id="goal" type="number" min="0" placeholder="12000" value="12000" /></div>
+
+        <div class="split">
+          <div class="split-top"><b>Yield split</b><em id="pctlabel">60% to the goal</em></div>
+          <input id="slider" type="range" min="0" max="100" value="60" />
+          <div class="split-legend"><span>↩ back to stakers</span><span>to the goal ↦</span></div>
+        </div>
+
+        <button class="cta" id="launch">Launch pool →</button>
+      </div>
+
+      <div class="done" id="done">
+        <div class="ring">✓</div>
+        <h2 id="doneTitle">Your pool is live.</h2>
+        <p>Share this link — everyone who stakes grows the pot, together.</p>
+        <div class="link"><span id="poolLink">crowdstake.fun/app/?i=0x…</span><button id="copy">Copy</button></div>
+        <button class="again" id="again">← Launch another</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  var slider = document.getElementById('slider');
+  var pctlabel = document.getElementById('pctlabel');
+  function paint() {
+    var v = slider.value;
+    slider.style.setProperty('--pct', v + '%');
+    pctlabel.textContent = v + '% to the goal';
+  }
+  slider.addEventListener('input', paint); paint();
+
+  function slug(s){ return (s||'pool').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,24); }
+  function fakeAddr(){ var h='0123456789abcdef',a='0x'; for(var i=0;i<6;i++)a+=h[Math.floor((i*7+slider.value)%16)]; return a+'…'+slug(document.getElementById('name').value).slice(0,4); }
+
+  document.getElementById('launch').addEventListener('click', function(){
+    var name = document.getElementById('name').value.trim() || 'Your Pool';
+    document.getElementById('doneTitle').textContent = '“' + name + '” is live.';
+    document.getElementById('poolLink').textContent = 'crowdstake.fun/app/?i=' + fakeAddr();
+    document.getElementById('form').style.display = 'none';
+    document.getElementById('done').classList.add('show');
+  });
+  document.getElementById('again').addEventListener('click', function(){
+    document.getElementById('done').classList.remove('show');
+    document.getElementById('form').style.display = 'block';
+  });
+  document.getElementById('copy').addEventListener('click', function(){
+    var b=this; var t=document.getElementById('poolLink').textContent;
+    if(navigator.clipboard) navigator.clipboard.writeText(t);
+    b.textContent='Copied ✓'; setTimeout(function(){ b.textContent='Copy'; }, 1400);
+  });
+</script>
+</body>
+</html>
